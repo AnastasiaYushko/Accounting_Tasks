@@ -8,5 +8,6 @@ import org.springframework.stereotype.Component;
 @Data
 @Scope("prototype")
 public class ReturnCompletedTaskRequest {
+    private int user_id;
     private int task_id;
 }

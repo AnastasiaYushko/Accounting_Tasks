@@ -3,19 +3,17 @@ package org.example.DAO.Tasks;
 import org.example.models.Task;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Date;
-import java.sql.Time;
-import java.util.List;
+import java.util.ArrayList;
 
 @Repository
-public class TaskDAOImpl implements TaskDAO{
+public class TaskDAOImpl implements TaskDAO {
     @Override
-    public int addTask(int user_id, String title, Date date, Time time, String status) {
-        return 0;
+    public String addTask(int user_id, String title, String date, String time) {
+        return "";
     }
 
     @Override
-    public String changeTask(int user_id, int task_id, String title, Date date, Time time) {
+    public String changeTask(int user_id, int task_id, String title, String date, String time) {
         return "";
     }
 
@@ -30,27 +28,27 @@ public class TaskDAOImpl implements TaskDAO{
     }
 
     @Override
-    public String deleteCompletedTasks(List<Integer> task_id) {
+    public String deleteCompletedTasks(int user_id) {
         return "";
     }
 
     @Override
-    public String deleteTask(int task_id) {
+    public String deleteTask(int user_id, int task_id) {
         return "";
     }
 
     @Override
-    public List<Task> getAllTasks() {
-        return List.of();
+    public ArrayList<Task> getAllTasks(int user_id) {
+        return new ArrayList<>();
     }
 
     @Override
-    public List<Task> getCompletedTasks() {
-        return List.of();
+    public ArrayList<Task> getCompletedTasks(int user_id) {
+        return new ArrayList<>();
     }
 
     @Override
-    public List<Task> getTodayTasks() {
-        return List.of();
+    public ArrayList<Task> getTodayTasks(int user_id) {
+        return new ArrayList<>();
     }
 }

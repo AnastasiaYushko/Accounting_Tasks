@@ -8,4 +8,9 @@ import org.springframework.stereotype.Component;
 @Data
 @Scope("prototype")
 public class ChangeTaskRequest {
+    private int user_id;
+    private int task_id;
+    private String title;
+    private String date;
+    private String time;
 }

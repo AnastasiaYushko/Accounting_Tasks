@@ -4,8 +4,11 @@ import lombok.Data;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+
 @Component
 @Data
 @Scope("prototype")
 public class GetTodayTasksResponse {
+    private ArrayList<String> tasks;
 }

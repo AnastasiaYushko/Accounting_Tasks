@@ -8,4 +8,6 @@ import org.springframework.stereotype.Component;
 @Data
 @Scope("prototype")
 public class GetUserRequest {
+    private String login;
+    private String password;
 }

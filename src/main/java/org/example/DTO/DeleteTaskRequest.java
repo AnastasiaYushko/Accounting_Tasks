@@ -8,4 +8,6 @@ import org.springframework.stereotype.Component;
 @Data
 @Scope("prototype")
 public class DeleteTaskRequest {
+    private int user_id;
+    private int task_id;
 }

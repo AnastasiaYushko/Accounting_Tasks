@@ -8,4 +8,8 @@ import org.springframework.stereotype.Component;
 @Data
 @Scope("prototype")
 public class AddTaskRequest {
+    private int user_id;
+    private String title;
+    private String date;
+    private String time;
 }

@@ -36,11 +36,8 @@ public class UsersController {
         }
     }
 
-    @GetMapping("/getUser")
-    public ResponseEntity<?> getUser(@RequestParam String login, @RequestParam String password ) {
-        GetUserRequest getUserRequest = SpringConfig.getContext().getBean("getUserRequest", GetUserRequest.class);
-        getUserRequest.setLogin(login);
-        getUserRequest.setPassword(password);
+    @PostMapping("/getUser")
+    public ResponseEntity<?> getUser(@Valid @RequestBody GetUserRequest getUserRequest) {
         try {
             GetUserResponse getUserResponse = userService.getUser(getUserRequest);
             return new ResponseEntity<>(getUserResponse,HttpStatus.OK);
@@ -60,4 +57,6 @@ public class UsersController {
             return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
+
+    // гет по id
 }

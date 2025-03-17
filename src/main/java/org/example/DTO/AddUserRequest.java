@@ -1,5 +1,6 @@
 package org.example.DTO;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -8,7 +9,10 @@ import org.springframework.stereotype.Component;
 @Data
 @Scope("prototype")
 public class AddUserRequest {
+    @NotBlank(message = "Логин не может быть пустым")
     private String login;
+    @NotBlank(message = "Пароль не может быть пустым")
     private String password;
+    @NotBlank(message = "Имя не может быть пустым")
     private String name;
 }

@@ -5,6 +5,8 @@ import org.example.models.Task;
 import org.example.models.User;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,8 +26,11 @@ public class DataBase {
         keyTask = 1;
     }
 
-    public String addTask(Task task) {
+    public String addTask(Task task) throws NoSuchElementException{
         int user_id = task.getUser_id();
+        if (!users.containsKey(user_id)){
+            throw new NoSuchElementException("Пользователь не найден");
+        }
         task.setId(keyTask);
         task.setStatus(Status.active);
         synchronized (user_tasks) {
@@ -49,13 +54,16 @@ public class DataBase {
             keyUser++;
         }
         synchronized (user_tasks) {
-            user_tasks.put(user.getId(), new HashMap<Integer, Task>());
+            user_tasks.put(user.getId(), new HashMap<>());
         }
         return user.getId();
     }
 
     public String changeTask(Task task) throws NoSuchElementException {
         int user_id = task.getUser_id();
+        if (!users.containsKey(user_id)){
+            throw new NoSuchElementException("Пользователь не найден");
+        }
         synchronized (user_tasks) {
             HashMap<Integer, Task> tasks = user_tasks.get(user_id);
             if (tasks != null && tasks.containsKey(task.getId())) {
@@ -72,7 +80,10 @@ public class DataBase {
         return "Задача изменена";
     }
 
-    public String completeTask(int user_id, int task_id) {
+    public String completeTask(int user_id, int task_id) throws NoSuchElementException{
+        if (!users.containsKey(user_id)){
+            throw new NoSuchElementException("Пользователь не найден");
+        }
         synchronized (user_tasks) {
             HashMap<Integer, Task> tasks = user_tasks.get(user_id);
             if (tasks != null && tasks.containsKey(task_id)) {
@@ -91,6 +102,9 @@ public class DataBase {
     }
 
     public String deleteCompletedTasks(int user_id) throws NoSuchElementException {
+        if (!users.containsKey(user_id)){
+            throw new NoSuchElementException("Пользователь не найден");
+        }
         boolean flag = false;
         synchronized (user_tasks) {
             HashMap<Integer, Task> tasks = user_tasks.get(user_id);
@@ -101,7 +115,7 @@ public class DataBase {
                 }
             }
             if (flag) {
-                tasks.values().removeIf(task -> task.getStatus().equals(Status.completed));
+                tasks.values().removeIf(task -> (task.getStatus() == Status.completed));
                 user_tasks.put(user_id, tasks);
                 return "Задачи удалены";
             } else {
@@ -110,7 +124,10 @@ public class DataBase {
         }
     }
 
-    public String deleteTask(int user_id, int task_id) {
+    public String deleteTask(int user_id, int task_id) throws NoSuchElementException{
+        if (!users.containsKey(user_id)){
+            throw new NoSuchElementException("Пользователь не найден");
+        }
         synchronized (user_tasks) {
             HashMap<Integer, Task> tasks = user_tasks.get(user_id);
             if (tasks != null && tasks.containsKey(task_id)) {
@@ -136,11 +153,17 @@ public class DataBase {
         return "Пользователь удален";
     }
 
-    public ArrayList<Task> getAllTasks(int user_id) {
+    public ArrayList<Task> getAllTasks(int user_id) throws NoSuchElementException {
+        if (!users.containsKey(user_id)){
+            throw new NoSuchElementException("Пользователь не найден");
+        }
         return new ArrayList<>(user_tasks.get(user_id).values());
     }
 
-    public ArrayList<Task> getCompletedTasks(int user_id) {
+    public ArrayList<Task> getCompletedTasks(int user_id) throws NoSuchElementException {
+        if (!users.containsKey(user_id)){
+            throw new NoSuchElementException("Пользователь не найден");
+        }
         synchronized (user_tasks) {
             HashMap<Integer, Task> tasks = user_tasks.get(user_id);
             ArrayList<Task> arrayList = new ArrayList<>();
@@ -153,8 +176,21 @@ public class DataBase {
         }
     }
 
-    public ArrayList<Task> getTodayTasks(int user_id) {
-        return new ArrayList<>();
+    public ArrayList<Task> getTodayTasks(int user_id) throws NoSuchElementException{
+        if (!users.containsKey(user_id)){
+            throw new NoSuchElementException("Пользователь не найден");
+        }
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        String formattedDate = today.format(formatter);
+        HashMap<Integer, Task> tasks = user_tasks.get(user_id);
+        ArrayList<Task> todayTasks = new ArrayList<>();
+        for (Task task : tasks.values()) {
+            if (task.getDate().equals(formattedDate)){
+                todayTasks.add(task);
+            }
+        }
+        return todayTasks;
     }
 
     public User getUser(String login, String password) throws NoSuchElementException {
@@ -168,15 +204,21 @@ public class DataBase {
         throw new NoSuchElementException("Пользователь не найден");
     }
 
-    public String returnCompletedTask(int user_id, int task_id) {
+    public String returnCompletedTask(int user_id, int task_id) throws NoSuchElementException{
+        if (!users.containsKey(user_id)){
+            throw new NoSuchElementException("Пользователь не найден");
+        }
         synchronized (user_tasks) {
             HashMap<Integer, Task> tasks = user_tasks.get(user_id);
             if (tasks != null && tasks.containsKey(task_id)) {
                 Task task = tasks.get(task_id);
+                if (task.getStatus() == Status.active){
+                    return "Задача уже активна";
+                }
                 task.setStatus(Status.active);
                 tasks.put(task.getId(), task);
                 user_tasks.put(user_id, tasks);
-                return "Задача активна";
+                return "Задача теперь активна";
             } else {
                 throw new NoSuchElementException("Задача не найдена");
             }

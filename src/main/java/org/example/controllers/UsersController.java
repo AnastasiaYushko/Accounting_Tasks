@@ -40,7 +40,7 @@ public class UsersController {
     public ResponseEntity<?> getUser(@Valid @RequestBody GetUserRequest getUserRequest) {
         try {
             GetUserResponse getUserResponse = userService.getUser(getUserRequest);
-            return new ResponseEntity<>(getUserResponse,HttpStatus.OK);
+            return new ResponseEntity<>(getUserResponse, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
         }
@@ -48,15 +48,13 @@ public class UsersController {
 
     @DeleteMapping("/deleteUser")
     public ResponseEntity<?> deleteUser(@RequestParam int user_id) {
-        DeleteUserRequest deleteUserRequest = SpringConfig.getContext().getBean("deleteUserRequest",DeleteUserRequest.class);
+        DeleteUserRequest deleteUserRequest = SpringConfig.getContext().getBean("deleteUserRequest", DeleteUserRequest.class);
         deleteUserRequest.setUser_id(user_id);
         try {
             String result = userService.deleteUser(deleteUserRequest);
-            return new ResponseEntity<>(result,HttpStatus.OK);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
-
-    // гет по id
 }

@@ -7,5 +7,5 @@ public interface UserDAO {
 
     String deleteUser(int id);
 
-    User getUser(String login,String password);
+    User getUser(String login, String password);
 }

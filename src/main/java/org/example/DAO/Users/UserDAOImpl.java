@@ -18,7 +18,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public int addUser(String login, String password, String name) {
-        User user = SpringConfig.getContext().getBean("user",User.class);
+        User user = SpringConfig.getContext().getBean("user", User.class);
         user.setLogin(login);
         user.setName(name);
         user.setPassword(password);
@@ -31,7 +31,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public User getUser(String login,String password) {
-        return dataBase.getUser(login,password);
+    public User getUser(String login, String password) {
+        return dataBase.getUser(login, password);
     }
 }

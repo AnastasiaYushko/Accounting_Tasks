@@ -15,7 +15,7 @@ public class DataBase {
     private final Map<Integer, User> users;
     private Integer keyUser;
     private Integer keyTask;
-    private final HashMap<Integer, HashMap<Integer,Task>> user_tasks;
+    private final HashMap<Integer, HashMap<Integer, Task>> user_tasks;
 
     public DataBase() {
         users = new HashMap<>();
@@ -29,8 +29,8 @@ public class DataBase {
         task.setId(keyTask);
         task.setStatus(Status.active);
         synchronized (user_tasks) {
-            HashMap<Integer,Task> tasks = user_tasks.get(user_id);
-            tasks.put(keyTask,task);
+            HashMap<Integer, Task> tasks = user_tasks.get(user_id);
+            tasks.put(keyTask, task);
             user_tasks.put(user_id, tasks);
             keyTask++;
         }
@@ -49,7 +49,7 @@ public class DataBase {
             keyUser++;
         }
         synchronized (user_tasks) {
-            user_tasks.put(user.getId(), new HashMap<Integer,Task>());
+            user_tasks.put(user.getId(), new HashMap<Integer, Task>());
         }
         return user.getId();
     }
@@ -57,7 +57,7 @@ public class DataBase {
     public String changeTask(Task task) throws NoSuchElementException {
         int user_id = task.getUser_id();
         synchronized (user_tasks) {
-            HashMap<Integer,Task> tasks = user_tasks.get(user_id);
+            HashMap<Integer, Task> tasks = user_tasks.get(user_id);
             if (tasks != null && tasks.containsKey(task.getId())) {
                 Task oldTask = tasks.get(user_id);
                 if (oldTask.equals(task)) {
@@ -65,8 +65,7 @@ public class DataBase {
                 }
                 tasks.put(task.getId(), task);
                 user_tasks.put(user_id, tasks);
-            }
-            else{
+            } else {
                 throw new NoSuchElementException("Задача не найдена");
             }
         }
@@ -75,17 +74,16 @@ public class DataBase {
 
     public String completeTask(int user_id, int task_id) {
         synchronized (user_tasks) {
-            HashMap<Integer,Task> tasks = user_tasks.get(user_id);
+            HashMap<Integer, Task> tasks = user_tasks.get(user_id);
             if (tasks != null && tasks.containsKey(task_id)) {
                 Task task = tasks.get(task_id);
-                if (task.getStatus() == Status.completed){
+                if (task.getStatus() == Status.completed) {
                     throw new NoSuchElementException("Задача уже выполнена");
                 }
                 task.setStatus(Status.completed);
                 tasks.put(task.getId(), task);
                 user_tasks.put(user_id, tasks);
-            }
-            else{
+            } else {
                 throw new NoSuchElementException("Задача не найдена");
             }
             return "Задача выполнена";
@@ -95,7 +93,7 @@ public class DataBase {
     public String deleteCompletedTasks(int user_id) throws NoSuchElementException {
         boolean flag = false;
         synchronized (user_tasks) {
-            HashMap<Integer,Task> tasks = user_tasks.get(user_id);
+            HashMap<Integer, Task> tasks = user_tasks.get(user_id);
             for (Task task : tasks.values()) {
                 if (task.getStatus().equals(Status.completed)) {
                     flag = true;
@@ -114,13 +112,12 @@ public class DataBase {
 
     public String deleteTask(int user_id, int task_id) {
         synchronized (user_tasks) {
-            HashMap<Integer,Task> tasks = user_tasks.get(user_id);
+            HashMap<Integer, Task> tasks = user_tasks.get(user_id);
             if (tasks != null && tasks.containsKey(task_id)) {
                 tasks.remove(task_id);
                 user_tasks.put(user_id, tasks);
                 return "Задача удалена";
-            }
-            else{
+            } else {
                 throw new NoSuchElementException("Задача не найдена");
             }
         }
@@ -145,7 +142,7 @@ public class DataBase {
 
     public ArrayList<Task> getCompletedTasks(int user_id) {
         synchronized (user_tasks) {
-            HashMap<Integer,Task> tasks = user_tasks.get(user_id);
+            HashMap<Integer, Task> tasks = user_tasks.get(user_id);
             ArrayList<Task> arrayList = new ArrayList<>();
             for (Task task : tasks.values()) {
                 if (task.getStatus() == Status.completed) {
@@ -173,15 +170,14 @@ public class DataBase {
 
     public String returnCompletedTask(int user_id, int task_id) {
         synchronized (user_tasks) {
-            HashMap<Integer,Task> tasks = user_tasks.get(user_id);
+            HashMap<Integer, Task> tasks = user_tasks.get(user_id);
             if (tasks != null && tasks.containsKey(task_id)) {
                 Task task = tasks.get(task_id);
                 task.setStatus(Status.active);
                 tasks.put(task.getId(), task);
                 user_tasks.put(user_id, tasks);
                 return "Задача активна";
-            }
-            else{
+            } else {
                 throw new NoSuchElementException("Задача не найдена");
             }
         }

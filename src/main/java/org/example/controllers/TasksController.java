@@ -65,7 +65,7 @@ public class TasksController {
 
     @DeleteMapping("/deleteCompletedTasks")
     public ResponseEntity<?> deleteCompletedTasks(@RequestParam int user_id) {
-        DeleteCompletedTasksRequest deleteCompletedTasksRequest = SpringConfig.getContext().getBean("deleteCompletedTasksRequest",DeleteCompletedTasksRequest.class);
+        DeleteCompletedTasksRequest deleteCompletedTasksRequest = SpringConfig.getContext().getBean("deleteCompletedTasksRequest", DeleteCompletedTasksRequest.class);
         deleteCompletedTasksRequest.setUser_id(user_id);
         try {
             String result = taskService.deleteCompletedTasks(deleteCompletedTasksRequest);
@@ -76,8 +76,8 @@ public class TasksController {
     }
 
     @DeleteMapping("/deleteTask")
-    public ResponseEntity<?> deleteTask(@RequestParam int user_id,@RequestParam int task_id) {
-        DeleteTaskRequest deleteTaskRequest = SpringConfig.getContext().getBean("deleteTaskRequest",DeleteTaskRequest.class);
+    public ResponseEntity<?> deleteTask(@RequestParam int user_id, @RequestParam int task_id) {
+        DeleteTaskRequest deleteTaskRequest = SpringConfig.getContext().getBean("deleteTaskRequest", DeleteTaskRequest.class);
         deleteTaskRequest.setUser_id(user_id);
         deleteTaskRequest.setTask_id(task_id);
         try {
@@ -90,7 +90,7 @@ public class TasksController {
 
     @GetMapping("/getAllTasks")
     public ResponseEntity<?> getAllTasks(@RequestParam int user_id) {
-        GetAllTasksRequest getAllTasksRequest = SpringConfig.getContext().getBean("getAllTasksRequest",GetAllTasksRequest.class);
+        GetAllTasksRequest getAllTasksRequest = SpringConfig.getContext().getBean("getAllTasksRequest", GetAllTasksRequest.class);
         getAllTasksRequest.setUser_id(user_id);
         try {
             GetAllTasksResponse result = taskService.getAllTasks(getAllTasksRequest);
@@ -102,7 +102,7 @@ public class TasksController {
 
     @GetMapping("/getCompletedTasks")
     public ResponseEntity<?> getCompletedTasks(@RequestParam int user_id) {
-        GetCompletedTasksRequest getCompletedTasksRequest = SpringConfig.getContext().getBean("getCompletedTasksRequest",GetCompletedTasksRequest.class);
+        GetCompletedTasksRequest getCompletedTasksRequest = SpringConfig.getContext().getBean("getCompletedTasksRequest", GetCompletedTasksRequest.class);
         getCompletedTasksRequest.setUser_id(user_id);
         try {
             GetCompletedTasksResponse result = taskService.getCompletedTasks(getCompletedTasksRequest);
@@ -114,7 +114,7 @@ public class TasksController {
 
     @GetMapping("/getTodayTasks")
     public ResponseEntity<?> getTodayTasks(@RequestParam int user_id) {
-        GetTodayTasksRequest getTodayTasksRequest = SpringConfig.getContext().getBean("getTodayTasksRequest",GetTodayTasksRequest.class);
+        GetTodayTasksRequest getTodayTasksRequest = SpringConfig.getContext().getBean("getTodayTasksRequest", GetTodayTasksRequest.class);
         getTodayTasksRequest.setUser_id(user_id);
         try {
             GetTodayTasksResponse result = taskService.getTodayTasks(getTodayTasksRequest);

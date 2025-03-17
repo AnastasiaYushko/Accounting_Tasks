@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int addUser(AddUserRequest addUserRequest) {
-        return userDAO.addUser(addUserRequest.getLogin(),addUserRequest.getPassword(),addUserRequest.getName());
+        return userDAO.addUser(addUserRequest.getLogin(), addUserRequest.getPassword(), addUserRequest.getName());
     }
 
     @Override
@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public GetUserResponse getUser(GetUserRequest getUserRequest) {
         GetUserResponse getUserResponse = SpringConfig.getContext().getBean("getUserResponse", GetUserResponse.class);
-        User user = userDAO.getUser(getUserRequest.getLogin(),getUserRequest.getPassword());
+        User user = userDAO.getUser(getUserRequest.getLogin(), getUserRequest.getPassword());
         getUserResponse.setUser_id(user.getId());
         getUserResponse.setName(user.getName());
         return getUserResponse;

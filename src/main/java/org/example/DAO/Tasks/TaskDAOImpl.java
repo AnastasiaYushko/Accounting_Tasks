@@ -20,7 +20,7 @@ public class TaskDAOImpl implements TaskDAO {
 
     @Override
     public String addTask(int user_id, String title, String date, String time) {
-        Task task = SpringConfig.getContext().getBean("task",Task.class);
+        Task task = SpringConfig.getContext().getBean("task", Task.class);
         task.setUser_id(user_id);
         task.setTitle(title);
         task.setDate(date);
@@ -30,7 +30,7 @@ public class TaskDAOImpl implements TaskDAO {
 
     @Override
     public String changeTask(int user_id, int task_id, String title, String date, String time) {
-        Task task = SpringConfig.getContext().getBean("task",Task.class);
+        Task task = SpringConfig.getContext().getBean("task", Task.class);
         task.setId(task_id);
         task.setUser_id(user_id);
         task.setTitle(title);
@@ -41,12 +41,12 @@ public class TaskDAOImpl implements TaskDAO {
 
     @Override
     public String completeTask(int task_id, int user_id) {
-        return dataBase.completeTask(user_id,task_id);
+        return dataBase.completeTask(user_id, task_id);
     }
 
     @Override
     public String returnCompletedTask(int task_id, int user_id) {
-        return dataBase.returnCompletedTask(user_id,task_id);
+        return dataBase.returnCompletedTask(user_id, task_id);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class TaskDAOImpl implements TaskDAO {
 
     @Override
     public String deleteTask(int user_id, int task_id) {
-        return dataBase.deleteTask(user_id,task_id);
+        return dataBase.deleteTask(user_id, task_id);
     }
 
     @Override

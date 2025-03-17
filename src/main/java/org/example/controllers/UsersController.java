@@ -5,6 +5,7 @@ import org.example.DTO.AddUserRequest;
 import org.example.DTO.DeleteUserRequest;
 import org.example.DTO.GetUserRequest;
 import org.example.DTO.GetUserResponse;
+import org.example.SpringConfig;
 import org.example.service.Users.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,7 +37,10 @@ public class UsersController {
     }
 
     @GetMapping("/getUser")
-    public ResponseEntity<?> getUser(@Valid @RequestBody GetUserRequest getUserRequest) {
+    public ResponseEntity<?> getUser(@RequestParam String login, @RequestParam String password ) {
+        GetUserRequest getUserRequest = SpringConfig.getContext().getBean("getUserRequest", GetUserRequest.class);
+        getUserRequest.setLogin(login);
+        getUserRequest.setPassword(password);
         try {
             GetUserResponse getUserResponse = userService.getUser(getUserRequest);
             return new ResponseEntity<>(getUserResponse,HttpStatus.OK);
@@ -46,7 +50,9 @@ public class UsersController {
     }
 
     @DeleteMapping("/deleteUser")
-    public ResponseEntity<?> deleteUser(@Valid @RequestBody DeleteUserRequest deleteUserRequest) {
+    public ResponseEntity<?> deleteUser(@RequestParam int user_id) {
+        DeleteUserRequest deleteUserRequest = SpringConfig.getContext().getBean("deleteUserRequest",DeleteUserRequest.class);
+        deleteUserRequest.setUser_id(user_id);
         try {
             String result = userService.deleteUser(deleteUserRequest);
             return new ResponseEntity<>(result,HttpStatus.OK);

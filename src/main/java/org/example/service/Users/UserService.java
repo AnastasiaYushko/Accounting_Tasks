@@ -6,7 +6,7 @@ import org.example.DTO.GetUserRequest;
 import org.example.DTO.GetUserResponse;
 
 public interface UserService {
-    String addUser(AddUserRequest addUserRequest);
+    int addUser(AddUserRequest addUserRequest);
 
     String deleteUser(DeleteUserRequest deleteUserRequest);
 

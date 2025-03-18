@@ -1,17 +1,20 @@
 package org.example.controllers;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.example.DTO.AddUserRequest;
 import org.example.DTO.GetUserRequest;
 import org.example.DTO.GetUserResponse;
 import org.example.models.User;
 import org.example.service.UserService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
+
 import java.util.Optional;
 
 @RestController
@@ -32,8 +35,10 @@ public class UsersController {
             user.setName(addUserRequest.getName());
             User createdUser = userService.addUser(user);
             return new ResponseEntity<>(createdUser.getId(), HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e) {
+            return new ResponseEntity<>("Пользователь с таким логином уже существует", HttpStatus.CONFLICT); //409
         } catch (Exception e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); //500
         }
     }
 
@@ -58,10 +63,13 @@ public class UsersController {
     }
 
     @DeleteMapping("/deleteUser/{userId}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+    public ResponseEntity<?> deleteUser(@PathVariable @Min(value = 0, message = "ID пользователя не может быть <0") Long userId) {
         try {
+            if (userService.getUserById(userId).isEmpty()) {
+                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND); //404
+            }
             userService.deleteUser(userId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Код 204
+            return new ResponseEntity<>("Пользователь удален", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }

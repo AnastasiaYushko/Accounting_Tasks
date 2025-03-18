@@ -41,7 +41,7 @@ public class TasksController {
                 User user = userOptional.get();
                 task.setUser(user); // Связываем задачу с пользователем
             } else {
-                return new ResponseEntity<>("Пользователь с ID " + addTaskRequest.getUser_id()+ " не найден", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Пользователь с ID " + addTaskRequest.getUser_id() + " не найден", HttpStatus.NOT_FOUND);
             }
             Task addedTask = taskService.addTask(task);
             return new ResponseEntity<>(addedTask.getId(), HttpStatus.CREATED); // Вернуть ID и код 201

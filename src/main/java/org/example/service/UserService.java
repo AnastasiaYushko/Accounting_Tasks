@@ -25,10 +25,6 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public Optional<User> getUserByLogin(String login) {
-        return userRepository.findByLogin(login);
-    }
-
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }

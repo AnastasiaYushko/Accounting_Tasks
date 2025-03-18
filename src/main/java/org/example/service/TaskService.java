@@ -18,62 +18,52 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
 
-    // Добавление нового таска
     public Task addTask(Task task) {
-        // Валидация task (например, title не null и не пустой)
         return taskRepository.save(task);
     }
 
-    // Изменение таска
     public Optional<Task> changeTask(Long userId, Long taskId, String title, LocalDate date, LocalTime time) {
         return taskRepository.findById(taskId)
                 .map(task -> {
-                    if (task.getUser().getId().equals(userId)) { // Проверяем, что задача принадлежит пользователю
+                    if (task.getUser().getId().equals(userId)) {
                         task.setTitle(title);
                         task.setDate(date);
                         task.setTime(time);
                         return taskRepository.save(task);
                     } else {
-                        return null; // Или выбросить исключение, если задача не принадлежит пользователю
+                        return null;
                     }
                 });
     }
 
-    // Выполнение таска (то есть меняем его статус и добавляем дату и время завершения)
-    @Transactional // Важно для операций UPDATE
+    @Transactional
     public void completeTask(Long taskId, Long userId) {
         taskRepository.completeTask(taskId, userId, Status.completed, LocalDate.now(), LocalTime.now());
     }
 
-    // Меняем статус с completed на active
-    @Transactional // Важно для операций UPDATE
+    @Transactional
     public void returnCompletedTask(Long taskId, Long userId) {
         taskRepository.returnCompletedTask(taskId, userId, Status.active);
     }
 
-    // Удаление всех тасков пользователя у который статус complete
-    @Transactional // Важно для операций DELETE
+    @Transactional
     public void deleteCompletedTasks(Long userId) {
         taskRepository.deleteCompletedTasks(userId, Status.completed);
     }
 
-    // Удаляем таск
-    @Transactional // Важно для операций DELETE
+    @Transactional
     public void deleteTask(Long taskId, Long userId) {
         taskRepository.deleteTask(userId, taskId);
     }
 
-    // Получение всех тасков пользователя
     public List<Task> getAllTasks(Long userId) {
         return taskRepository.findByUserId(userId);
     }
 
-    // Получить все таски со статусом completed у пользователя
     public List<Task> getCompletedTasks(Long userId) {
         return taskRepository.findByUserIdAndStatus(userId, Status.completed);
     }
 
-    // Получить все таски пользователя у которых date совпадает с сегодняшней
     public List<Task> getTodayTasks(Long userId) {
         return taskRepository.findByUserIdAndDate(userId, LocalDate.now());
     }

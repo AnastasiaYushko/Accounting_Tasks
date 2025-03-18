@@ -21,17 +21,19 @@ public class Task {
     private String time;
     private Status status;
     private int user_id;
+    private String complete_date;
+    private String complete_time;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id == task.id && user_id == task.user_id && Objects.equals(title, task.title) && Objects.equals(date, task.date) && Objects.equals(time, task.time) && status == task.status;
+        return id == task.id && user_id == task.user_id && Objects.equals(title, task.title) && Objects.equals(date, task.date) && Objects.equals(time, task.time) && status == task.status && Objects.equals(complete_date, task.complete_date) && Objects.equals(complete_time, task.complete_time);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, date, time, status, user_id);
+        return Objects.hash(id, title, date, time, status, user_id, complete_date, complete_time);
     }
 }

@@ -13,4 +13,6 @@ public class CompleteTaskRequest {
     private int user_id;
     @Positive(message = "id не может быть <=0")
     private int task_id;
+    private String complete_date;
+    private String complete_time;
 }

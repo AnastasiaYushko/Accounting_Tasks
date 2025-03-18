@@ -31,7 +31,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public String completeTask(CompleteTaskRequest completeTaskRequest) {
-        return taskDAO.completeTask(completeTaskRequest.getTask_id(), completeTaskRequest.getUser_id());
+        return taskDAO.completeTask(completeTaskRequest.getTask_id(), completeTaskRequest.getUser_id(),completeTaskRequest.getComplete_date(),completeTaskRequest.getComplete_time());
     }
 
     @Override

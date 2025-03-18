@@ -40,8 +40,8 @@ public class TaskDAOImpl implements TaskDAO {
     }
 
     @Override
-    public String completeTask(int task_id, int user_id) {
-        return dataBase.completeTask(user_id, task_id);
+    public String completeTask(int task_id, int user_id, String complete_date, String complete_time) {
+        return dataBase.completeTask(user_id, task_id,complete_date,complete_time);
     }
 
     @Override

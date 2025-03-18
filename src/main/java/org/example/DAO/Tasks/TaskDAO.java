@@ -9,7 +9,7 @@ public interface TaskDAO {
 
     String changeTask(int user_id, int task_id, String title, String date, String time);
 
-    String completeTask(int task_id, int user_id);
+    String completeTask(int task_id, int user_id, String complete_date, String complete_time);
 
     String returnCompletedTask(int task_id, int user_id);
 

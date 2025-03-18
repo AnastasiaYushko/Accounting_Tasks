@@ -80,7 +80,7 @@ public class DataBase {
         return "Задача изменена";
     }
 
-    public String completeTask(int user_id, int task_id) throws NoSuchElementException{
+    public String completeTask(int user_id, int task_id,String complete_date,String complete_time) throws NoSuchElementException{
         if (!users.containsKey(user_id)){
             throw new NoSuchElementException("Пользователь не найден");
         }
@@ -92,6 +92,8 @@ public class DataBase {
                     throw new NoSuchElementException("Задача уже выполнена");
                 }
                 task.setStatus(Status.completed);
+                task.setComplete_date(complete_date);
+                task.setComplete_time(complete_time);
                 tasks.put(task.getId(), task);
                 user_tasks.put(user_id, tasks);
             } else {

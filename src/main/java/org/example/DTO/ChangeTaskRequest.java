@@ -19,8 +19,6 @@ public class ChangeTaskRequest {
     private Long task_id;
     @NotBlank(message = "Название задачи не может быть пустой")
     private String title;
-    @NotBlank(message = "Дата не может быть пустой")
     private LocalDate date;
-    @NotBlank(message = "Время не может быть пустым")
     private LocalTime time;
 }

@@ -1,7 +1,5 @@
 package org.example.DTO;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -12,10 +10,8 @@ import java.time.LocalTime;
 @Component
 @Data
 @Scope("prototype")
-public class AddTaskRequest {
-    @Positive(message = "id не может быть <=0")
-    private Long user_id;
-    @NotBlank(message = "Название задачи не может быть пустой")
+public class GetAllTasksResponse {
+    private Long id;
     private String title;
     private LocalDate date;
     private LocalTime time;

@@ -2,125 +2,141 @@ package org.example.controllers;
 
 import jakarta.validation.Valid;
 import org.example.DTO.*;
-import org.example.SpringConfig;
-import org.example.service.Tasks.TaskServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.enums.Status;
+import org.example.models.Task;
+import org.example.models.User;
+import org.example.service.TaskService;
+import org.example.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.NoSuchElementException;
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "*")
 @Validated
+@RequiredArgsConstructor
+@RequestMapping("/api/tasks")
 public class TasksController {
-    private final TaskServiceImpl taskService;
 
-    @Autowired
-    public TasksController(TaskServiceImpl taskService) {
-        this.taskService = taskService;
-    }
+    private final TaskService taskService;
+    private final UserService userService;
 
     @PostMapping("/addTask")
     public ResponseEntity<?> addTask(@Valid @RequestBody AddTaskRequest addTaskRequest) {
         try {
-            String result = taskService.addTask(addTaskRequest);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            Task task = new Task();
+            task.setTitle(addTaskRequest.getTitle());
+            task.setStatus(Status.active);
+            task.setDate(addTaskRequest.getDate());
+            task.setTime(addTaskRequest.getTime());
+
+            Optional<User> userOptional = userService.getUserById(addTaskRequest.getUser_id());
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                task.setUser(user); // Связываем задачу с пользователем
+            } else {
+                return new ResponseEntity<>("Пользователь с ID " + addTaskRequest.getUser_id()+ " не найден", HttpStatus.NOT_FOUND);
+            }
+            Task addedTask = taskService.addTask(task);
+            return new ResponseEntity<>(addedTask.getId(), HttpStatus.CREATED); // Вернуть ID и код 201
+        } catch (Exception e) {
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping("/changeTask")
     public ResponseEntity<?> changeTask(@Valid @RequestBody ChangeTaskRequest changeTaskRequest) {
         try {
-            String result = taskService.changeTask(changeTaskRequest);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            Optional<Task> changedTask = taskService.changeTask(
+                    changeTaskRequest.getUser_id(),
+                    changeTaskRequest.getTask_id(),
+                    changeTaskRequest.getTitle(),
+                    changeTaskRequest.getDate(),
+                    changeTaskRequest.getTime()
+            );
+            if (changedTask.isPresent()) {
+                return new ResponseEntity<>(changedTask.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Задача не найдена или не принадлежит пользователю", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PutMapping("/completeTask")
-    public ResponseEntity<?> completeTask(@Valid @RequestBody CompleteTaskRequest completeTaskRequest) {
+    @PutMapping("/completeTask/{taskId}/{userId}")
+    public ResponseEntity<?> completeTask(@PathVariable Long taskId, @PathVariable Long userId) {
         try {
-            String result = taskService.completeTask(completeTaskRequest);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            taskService.completeTask(taskId, userId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Код 204
+        } catch (Exception e) {
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PutMapping("/returnCompletedTask")
-    public ResponseEntity<?> returnCompletedTask(@Valid @RequestBody ReturnCompletedTaskRequest returnCompletedTaskRequest) {
+    @PutMapping("/returnCompletedTask/{taskId}/{userId}")
+    public ResponseEntity<?> returnCompletedTask(@PathVariable Long taskId, @PathVariable Long userId) {
         try {
-            String result = taskService.returnCompletedTask(returnCompletedTaskRequest);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            taskService.returnCompletedTask(taskId, userId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Код 204
+        } catch (Exception e) {
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @DeleteMapping("/deleteCompletedTasks")
-    public ResponseEntity<?> deleteCompletedTasks(@RequestParam int user_id) {
-        DeleteCompletedTasksRequest deleteCompletedTasksRequest = SpringConfig.getContext().getBean("deleteCompletedTasksRequest", DeleteCompletedTasksRequest.class);
-        deleteCompletedTasksRequest.setUser_id(user_id);
+    @DeleteMapping("/deleteCompletedTasks/{userId}")
+    public ResponseEntity<?> deleteCompletedTasks(@PathVariable Long userId) {
         try {
-            String result = taskService.deleteCompletedTasks(deleteCompletedTasksRequest);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            taskService.deleteCompletedTasks(userId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Код 204
+        } catch (Exception e) {
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @DeleteMapping("/deleteTask")
-    public ResponseEntity<?> deleteTask(@RequestParam int user_id, @RequestParam int task_id) {
-        DeleteTaskRequest deleteTaskRequest = SpringConfig.getContext().getBean("deleteTaskRequest", DeleteTaskRequest.class);
-        deleteTaskRequest.setUser_id(user_id);
-        deleteTaskRequest.setTask_id(task_id);
+    @DeleteMapping("/deleteTask/{taskId}/{userId}")
+    public ResponseEntity<?> deleteTask(@PathVariable Long taskId, @PathVariable Long userId) {
         try {
-            String result = taskService.deleteTask(deleteTaskRequest);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            taskService.deleteTask(taskId, userId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Код 204
+        } catch (Exception e) {
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/getAllTasks")
-    public ResponseEntity<?> getAllTasks(@RequestParam int user_id) {
-        GetAllTasksRequest getAllTasksRequest = SpringConfig.getContext().getBean("getAllTasksRequest", GetAllTasksRequest.class);
-        getAllTasksRequest.setUser_id(user_id);
+    @GetMapping("/getAllTasks/{userId}")
+    public ResponseEntity<?> getAllTasks(@PathVariable Long userId) {
         try {
-            GetAllTasksResponse result = taskService.getAllTasks(getAllTasksRequest);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            List<Task> tasks = taskService.getAllTasks(userId);
+            return new ResponseEntity<>(tasks, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/getCompletedTasks")
-    public ResponseEntity<?> getCompletedTasks(@RequestParam int user_id) {
-        GetCompletedTasksRequest getCompletedTasksRequest = SpringConfig.getContext().getBean("getCompletedTasksRequest", GetCompletedTasksRequest.class);
-        getCompletedTasksRequest.setUser_id(user_id);
+    @GetMapping("/getCompletedTasks/{userId}")
+    public ResponseEntity<?> getCompletedTasks(@PathVariable Long userId) {
         try {
-            GetCompletedTasksResponse result = taskService.getCompletedTasks(getCompletedTasksRequest);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            List<Task> tasks = taskService.getCompletedTasks(userId);
+            return new ResponseEntity<>(tasks, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/getTodayTasks")
-    public ResponseEntity<?> getTodayTasks(@RequestParam int user_id) {
-        GetTodayTasksRequest getTodayTasksRequest = SpringConfig.getContext().getBean("getTodayTasksRequest", GetTodayTasksRequest.class);
-        getTodayTasksRequest.setUser_id(user_id);
+    @GetMapping("/getTodayTasks/{userId}")
+    public ResponseEntity<?> getTodayTasks(@PathVariable Long userId) {
         try {
-            GetTodayTasksResponse result = taskService.getTodayTasks(getTodayTasksRequest);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            List<Task> tasks = taskService.getTodayTasks(userId);
+            return new ResponseEntity<>(tasks, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

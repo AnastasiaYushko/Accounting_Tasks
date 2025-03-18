@@ -10,5 +10,5 @@ import org.springframework.stereotype.Component;
 @Scope("prototype")
 public class GetTodayTasksRequest {
     @Positive(message = "id не может быть <=0")
-    private int user_id;
+    private Long user_id;
 }

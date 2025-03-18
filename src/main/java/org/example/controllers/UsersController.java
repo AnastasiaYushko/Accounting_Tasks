@@ -2,59 +2,68 @@ package org.example.controllers;
 
 import jakarta.validation.Valid;
 import org.example.DTO.AddUserRequest;
-import org.example.DTO.DeleteUserRequest;
 import org.example.DTO.GetUserRequest;
 import org.example.DTO.GetUserResponse;
-import org.example.SpringConfig;
-import org.example.service.Users.UserServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.models.User;
+import org.example.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.NoSuchElementException;
+import lombok.RequiredArgsConstructor;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "*")
 @Validated
+@RequiredArgsConstructor
+@RequestMapping("/api/user")
 public class UsersController {
-    private final UserServiceImpl userService;
 
-    @Autowired
-    public UsersController(UserServiceImpl userService) {
-        this.userService = userService;
-    }
+    private final UserService userService;
 
     @PostMapping("/addUser")
     public ResponseEntity<?> addUser(@Valid @RequestBody AddUserRequest addUserRequest) {
         try {
-            int result = userService.addUser(addUserRequest);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            User user = new User();
+            user.setLogin(addUserRequest.getLogin());
+            user.setPassword(addUserRequest.getPassword());
+            user.setName(addUserRequest.getName());
+            User createdUser = userService.addUser(user);
+            return new ResponseEntity<>(createdUser.getId(), HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
     @PostMapping("/getUser")
     public ResponseEntity<?> getUser(@Valid @RequestBody GetUserRequest getUserRequest) {
         try {
-            GetUserResponse getUserResponse = userService.getUser(getUserRequest);
-            return new ResponseEntity<>(getUserResponse, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            Optional<User> optionalUser = userService.getUserByLoginAndPassword(
+                    getUserRequest.getLogin(), getUserRequest.getPassword());
+
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+                GetUserResponse getUserResponse = new GetUserResponse();
+                getUserResponse.setUser_id(user.getId());
+                getUserResponse.setName(user.getName());
+                return new ResponseEntity<>(getUserResponse, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND); // 404
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 
-    @DeleteMapping("/deleteUser")
-    public ResponseEntity<?> deleteUser(@RequestParam int user_id) {
-        DeleteUserRequest deleteUserRequest = SpringConfig.getContext().getBean("deleteUserRequest", DeleteUserRequest.class);
-        deleteUserRequest.setUser_id(user_id);
+    @DeleteMapping("/deleteUser/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
         try {
-            String result = userService.deleteUser(deleteUserRequest);
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.NOT_FOUND);
+            userService.deleteUser(userId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Код 204
+        } catch (Exception e) {
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
 }

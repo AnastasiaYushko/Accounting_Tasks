@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component;
 @Data
 @Scope("prototype")
 public class GetUserResponse {
-    private int user_id;
+    private Long user_id;
     private String name;
 }

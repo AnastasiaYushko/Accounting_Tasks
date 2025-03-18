@@ -5,14 +5,17 @@ import lombok.Data;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Component
 @Data
 @Scope("prototype")
 public class CompleteTaskRequest {
     @Positive(message = "id не может быть <=0")
-    private int user_id;
+    private Long user_id;
     @Positive(message = "id не может быть <=0")
-    private int task_id;
-    private String complete_date;
-    private String complete_time;
+    private Long task_id;
+    private LocalDate complete_date;
+    private LocalTime complete_time;
 }

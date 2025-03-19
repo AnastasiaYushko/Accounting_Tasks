@@ -36,9 +36,9 @@ public class UsersController {
             User createdUser = userService.addUser(user);
             return new ResponseEntity<>(createdUser.getId(), HttpStatus.CREATED);
         } catch (DataIntegrityViolationException e) {
-            return new ResponseEntity<>("Пользователь с таким логином уже существует", HttpStatus.CONFLICT); //409
+            return new ResponseEntity<>("Пользователь с таким логином уже существует", HttpStatus.CONFLICT);
         } catch (Exception e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -55,10 +55,10 @@ public class UsersController {
                 getUserResponse.setName(user.getName());
                 return new ResponseEntity<>(getUserResponse, HttpStatus.OK);
             } else {
-                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND); // 404
+                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -66,12 +66,12 @@ public class UsersController {
     public ResponseEntity<?> deleteUser(@PathVariable @Min(value = 0, message = "ID пользователя не может быть <0") Long userId) {
         try {
             if (userService.getUserById(userId).isEmpty()) {
-                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND); //404
+                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
             }
             userService.deleteUser(userId);
             return new ResponseEntity<>("Пользователь удален", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

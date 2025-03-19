@@ -2,28 +2,24 @@ package org.example.models;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
 @Getter
 @Setter
-@Component
-@AllArgsConstructor
-@NoArgsConstructor
 @ToString
 @Entity
 @Table(name = "\"user\"")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Автоинкремент
-    private Long id; // Используем Long, так как id может быть большим
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "login", nullable = false, unique = true)
     private String login;
 
     @Column(name = "password", nullable = false)
-    private String password; // Пароль в открытом виде (НЕ РЕКОМЕНДУЕТСЯ)
+    private String password;
 
     @Column(name = "name")
     private String name;

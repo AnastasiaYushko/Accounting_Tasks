@@ -24,15 +24,30 @@ public class TaskService {
 
     public Optional<Task> changeTask(Long userId, Long taskId, String title, LocalDate date, LocalTime time) {
         return taskRepository.findById(taskId)
-                .map(task -> {
-                    if (task.getUser().getId().equals(userId)) {
-                        task.setTitle(title);
-                        task.setDate(date);
-                        task.setTime(time);
-                        return taskRepository.save(task);
-                    } else {
+                .map(existingTask -> {
+                    if (!existingTask.getUser().getId().equals(userId)) {
                         return null;
                     }
+
+                    Task updatedTask = new Task();
+                    updatedTask.setId(taskId);
+                    updatedTask.setUser(existingTask.getUser());
+                    updatedTask.setTitle(title);
+                    updatedTask.setDate(date);
+                    updatedTask.setTime(time);
+                    updatedTask.setCompleteDate(existingTask.getCompleteDate());
+                    updatedTask.setCompleteTime(existingTask.getCompleteTime());
+                    updatedTask.setStatus(existingTask.getStatus());
+
+                    if (existingTask.equals(updatedTask)) {
+                        return null;
+                    }
+
+                    existingTask.setTitle(title);
+                    existingTask.setDate(date);
+                    existingTask.setTime(time);
+
+                    return taskRepository.save(existingTask);
                 });
     }
 
@@ -57,7 +72,7 @@ public class TaskService {
     }
 
     public List<Task> getAllTasks(Long userId) {
-        return taskRepository.findByUserId(userId);
+        return taskRepository.findByUserIdAndStatus(userId, Status.active);
     }
 
     public List<Task> getCompletedTasks(Long userId) {
@@ -65,10 +80,14 @@ public class TaskService {
     }
 
     public List<Task> getTodayTasks(Long userId) {
-        return taskRepository.findByUserIdAndDate(userId, LocalDate.now());
+        return taskRepository.findByUserIdAndDateAndStatus(userId, LocalDate.now(), Status.active);
     }
 
     public Optional<Task> getTaskById(Long taskId) {
         return taskRepository.findById(taskId);
+    }
+
+    public Optional<Task> getTaskByUserId(Long userId, Long taskId) {
+        return taskRepository.findByIdAndUserId(taskId, userId);
     }
 }

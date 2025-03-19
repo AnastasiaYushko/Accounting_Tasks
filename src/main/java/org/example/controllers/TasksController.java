@@ -14,7 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
-
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,12 +43,12 @@ public class TasksController {
                 User user = userOptional.get();
                 task.setUser(user);
             } else {
-                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND); //404
+                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
             }
             Task addedTask = taskService.addTask(task);
-            return new ResponseEntity<>(addedTask.getId(), HttpStatus.CREATED); //201
+            return new ResponseEntity<>(addedTask.getId(), HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -63,25 +63,35 @@ public class TasksController {
                     changeTaskRequest.getTime()
             );
             if (changedTask.isPresent()) {
-                return new ResponseEntity<>(changedTask.get(), HttpStatus.OK);
+                return new ResponseEntity<>("Задача изменена", HttpStatus.OK);
             } else {
-                return new ResponseEntity<>("Задача не найдена или не принадлежит пользователю", HttpStatus.NOT_FOUND); //404
+                Optional<Task> task = taskService.getTaskById(changeTaskRequest.getTask_id());
+
+                if (task.isPresent() && !task.get().getUser().getId().equals(changeTaskRequest.getUser_id())) {
+                    return new ResponseEntity<>("Задача не найдена или не принадлежит пользователю", HttpStatus.NOT_FOUND);
+                }
+
+                return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
             }
         } catch (Exception e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping("/completeTask/{taskId}/{userId}")
     public ResponseEntity<?> completeTask(@PathVariable @Min(value = 0, message = "ID задачи не может быть <0") Long taskId, @PathVariable @Min(value = 0, message = "ID пользователя не может быть <0") Long userId) {
         try {
+            Optional<Task> check = taskService.getTaskByUserId(userId, taskId);
+            if (check.isEmpty()) {
+                return new ResponseEntity<>("Задача не найдена или не принадлежит пользователю", HttpStatus.NOT_FOUND);
+            }
             if (userService.getUserById(userId).isEmpty()) {
-                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND); //404
+                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
             }
             taskService.completeTask(taskId, userId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT); //204
+            return new ResponseEntity<>("Успешно", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); //500
+            return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -89,10 +99,10 @@ public class TasksController {
     public ResponseEntity<?> returnCompletedTask(@PathVariable @Min(value = 0, message = "ID задачи не может быть <0") Long taskId, @PathVariable @Min(value = 0, message = "ID пользователя не может быть <0") Long userId) {
         try {
             if (userService.getUserById(userId).isEmpty()) {
-                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND); //404
+                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
             }
             taskService.returnCompletedTask(taskId, userId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT); //204
+            return new ResponseEntity<>("Успешно", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -102,10 +112,10 @@ public class TasksController {
     public ResponseEntity<?> deleteCompletedTasks(@PathVariable @Min(value = 0, message = "ID пользователя не может быть <0") Long userId) {
         try {
             if (userService.getUserById(userId).isEmpty()) {
-                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND); //404
+                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
             }
             taskService.deleteCompletedTasks(userId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT); //204
+            return new ResponseEntity<>("Успешно удалено", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -115,10 +125,10 @@ public class TasksController {
     public ResponseEntity<?> deleteTask(@PathVariable @Min(value = 0, message = "ID задачи не может быть <0") Long taskId, @PathVariable @Min(value = 0, message = "ID пользователя не может быть <0") Long userId) {
         try {
             if (userService.getUserById(userId).isEmpty()) {
-                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND); //404
+                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
             }
             taskService.deleteTask(taskId, userId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT); //204
+            return new ResponseEntity<>("Успешно удалено", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -128,16 +138,18 @@ public class TasksController {
     public ResponseEntity<?> getAllTasks(@PathVariable @Min(value = 0, message = "ID пользователя не может быть <0") Long userId) {
         try {
             if (userService.getUserById(userId).isEmpty()) {
-                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND); //404
+                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
             }
             List<Task> tasks = taskService.getAllTasks(userId);
             List<GetAllTasksResponse> listResult = new ArrayList<>();
-            for (Task task : tasks){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            for (Task task : tasks) {
                 GetAllTasksResponse getAllTasksResponse = new GetAllTasksResponse();
                 getAllTasksResponse.setId(task.getId());
                 getAllTasksResponse.setTitle(task.getTitle());
                 getAllTasksResponse.setDate(task.getDate());
-                getAllTasksResponse.setTime(task.getTime());
+                String formattedTime = task.getTime().format(formatter);
+                getAllTasksResponse.setTime(formattedTime);
                 listResult.add(getAllTasksResponse);
             }
             return new ResponseEntity<>(listResult, HttpStatus.OK);
@@ -153,7 +165,21 @@ public class TasksController {
                 return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND); //404
             }
             List<Task> tasks = taskService.getCompletedTasks(userId);
-            return new ResponseEntity<>(tasks, HttpStatus.OK);
+            List<GetCompletedTasksResponse> listResult = new ArrayList<>();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            for (Task task : tasks) {
+                GetCompletedTasksResponse getCompletedTasksResponse = new GetCompletedTasksResponse();
+                getCompletedTasksResponse.setId(task.getId());
+                getCompletedTasksResponse.setTitle(task.getTitle());
+                getCompletedTasksResponse.setDate(task.getDate());
+                String formattedTime1 = task.getTime().format(formatter);
+                getCompletedTasksResponse.setTime(formattedTime1);
+                getCompletedTasksResponse.setCompleteDate(task.getCompleteDate());
+                String formattedTime2 = task.getCompleteTime().format(formatter);
+                getCompletedTasksResponse.setCompleteTime(formattedTime2);
+                listResult.add(getCompletedTasksResponse);
+            }
+            return new ResponseEntity<>(listResult, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -163,10 +189,21 @@ public class TasksController {
     public ResponseEntity<?> getTodayTasks(@PathVariable @Min(value = 0, message = "ID пользователя не может быть <0") Long userId) {
         try {
             if (userService.getUserById(userId).isEmpty()) {
-                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND); //404
+                return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
             }
             List<Task> tasks = taskService.getTodayTasks(userId);
-            return new ResponseEntity<>(tasks, HttpStatus.OK);
+            List<GetTodayTasksResponse> listResult = new ArrayList<>();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            for (Task task : tasks) {
+                GetTodayTasksResponse getTodayTasksResponse = new GetTodayTasksResponse();
+                getTodayTasksResponse.setId(task.getId());
+                getTodayTasksResponse.setTitle(task.getTitle());
+                getTodayTasksResponse.setDate(task.getDate());
+                String formattedTime = task.getTime().format(formatter);
+                getTodayTasksResponse.setTime(formattedTime);
+                listResult.add(getTodayTasksResponse);
+            }
+            return new ResponseEntity<>(listResult, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Ошибка: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

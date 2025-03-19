@@ -9,9 +9,11 @@ import java.time.LocalDate;
 @Component
 @Data
 @Scope("prototype")
-public class GetAllTasksResponse {
+public class GetCompletedTasksResponse {
     private Long id;
     private String title;
     private LocalDate date;
     private String time;
+    private LocalDate completeDate;
+    private String completeTime;
 }

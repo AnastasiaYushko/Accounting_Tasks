@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
@@ -20,7 +21,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByUserIdAndStatus(Long userId, Status status);
 
-    List<Task> findByUserIdAndDate(Long userId, LocalDate date);
+    List<Task> findByUserIdAndDateAndStatus(Long userId, LocalDate date, Status status);
+
+    Optional<Task> findByIdAndUserId(Long taskId, Long userId);
 
     @Modifying
     @Transactional

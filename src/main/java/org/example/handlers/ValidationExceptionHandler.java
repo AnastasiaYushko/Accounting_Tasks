@@ -3,6 +3,7 @@ package org.example.handlers;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,6 +29,12 @@ public class ValidationExceptionHandler {
         ex.getConstraintViolations().forEach(violation -> {
             errors.put(violation.getPropertyPath().toString(), violation.getMessage());
         });
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST); // Вернуть код 400
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        String errorMessage = "Ошибка при чтении JSON";
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
 }

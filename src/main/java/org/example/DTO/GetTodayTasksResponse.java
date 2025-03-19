@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Component
 @Data
 @Scope("prototype")
-public class GetAllTasksResponse {
+public class GetTodayTasksResponse {
     private Long id;
     private String title;
     private LocalDate date;

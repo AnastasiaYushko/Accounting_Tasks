@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -141,6 +142,7 @@ public class TasksController {
                 return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
             }
             List<Task> tasks = taskService.getAllTasks(userId);
+            tasks.sort(Comparator.comparing(Task::getId).reversed());
             List<GetAllTasksResponse> listResult = new ArrayList<>();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
             for (Task task : tasks) {
@@ -165,6 +167,8 @@ public class TasksController {
                 return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND); //404
             }
             List<Task> tasks = taskService.getCompletedTasks(userId);
+            tasks.sort(Comparator.comparing(Task::getCompleteDate, Comparator.nullsLast(Comparator.reverseOrder()))
+                    .thenComparing(Task::getCompleteTime, Comparator.nullsLast(Comparator.reverseOrder())));
             List<GetCompletedTasksResponse> listResult = new ArrayList<>();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
             for (Task task : tasks) {
@@ -192,6 +196,9 @@ public class TasksController {
                 return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
             }
             List<Task> tasks = taskService.getTodayTasks(userId);
+            // Сортировка задач по времени (от раннего к позднему) и ID (от меньшего к большему)
+            tasks.sort(Comparator.comparing(Task::getTime) // Сначала по времени
+                    .thenComparing(Task::getId)); // Затем по ID, если время одинаковое
             List<GetTodayTasksResponse> listResult = new ArrayList<>();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
             for (Task task : tasks) {

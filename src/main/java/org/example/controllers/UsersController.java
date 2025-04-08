@@ -6,6 +6,7 @@ import org.example.DTO.AddUserRequest;
 import org.example.DTO.GetUserRequest;
 import org.example.DTO.GetUserResponse;
 import org.example.models.User;
+import org.example.service.TaskService;
 import org.example.service.UserService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ import java.util.Optional;
 public class UsersController {
 
     private final UserService userService;
+    private final TaskService taskService;
 
     @PostMapping("/addUser")
     public ResponseEntity<?> addUser(@Valid @RequestBody AddUserRequest addUserRequest) {
@@ -68,6 +70,7 @@ public class UsersController {
             if (userService.getUserById(userId).isEmpty()) {
                 return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
             }
+            taskService.deleteAllTasksForUser(userId);
             userService.deleteUser(userId);
             return new ResponseEntity<>("Пользователь удален", HttpStatus.OK);
         } catch (Exception e) {

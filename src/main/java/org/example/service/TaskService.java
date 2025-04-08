@@ -90,4 +90,8 @@ public class TaskService {
     public Optional<Task> getTaskByUserId(Long userId, Long taskId) {
         return taskRepository.findByIdAndUserId(taskId, userId);
     }
+
+    public void deleteAllTasksForUser(Long userId) {
+        taskRepository.deleteAllTasksByUserId(userId);
+    }
 }
